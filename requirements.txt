@@ -1,0 +1,9 @@
+# This project is built with Node.js, React, Vite, and Tailwind CSS.
+# Python packages are not required.
+#
+# Install JavaScript dependencies with:
+# npm install
+#
+# Required runtime:
+# Node.js >= 20
+# npm >= 9

@@ -4,126 +4,85 @@ An AI-native Mini CRM for shopper engagement. It helps a D2C or retail brand dec
 
 Recommended repository name: `xeno-campaign-copilot`
 
-## Overview
+## Project Summary
 
-Xeno Campaign Copilot is a marketing CRM, not a sales or support CRM. It is designed around one focused workflow: a marketer describes a business goal, the AI copilot recommends an audience and message strategy, and the CRM launches a personalized campaign through a separate stubbed channel service.
+Xeno Campaign Copilot is a marketing CRM, not a sales pipeline CRM and not a support-ticket CRM. It is designed around one focused workflow:
 
-The channel service does not send real WhatsApp, SMS, Email, or RCS messages. Instead, it simulates the real lifecycle of a communication and asynchronously calls back into the CRM with delivery and engagement receipts such as `sent`, `delivered`, `failed`, `opened`, `read`, `clicked`, and `converted`.
+1. A marketer describes a campaign goal in natural language.
+2. The AI copilot recommends the audience, channel, message, and reasoning.
+3. The marketer launches the campaign.
+4. The CRM personalizes communications for every selected shopper.
+5. A separate stubbed channel service simulates delivery and engagement.
+6. The channel service asynchronously calls back into the CRM.
+7. The CRM updates communication state and campaign performance insights.
 
-## Product Point Of View
+The product point of view is intentionally narrow: make campaign creation smarter and faster for shopper engagement teams.
 
-The brief asks for an AI-native CRM. This project takes the stance that the best AI experience for a marketer is not just a chatbot and not just a text generator. The AI should help the marketer think and act.
+## Tech Stack Used
 
-The product therefore behaves like a campaign cockpit:
+### Frontend
 
-- The marketer enters a natural-language goal.
-- The copilot recommends the audience, channel, and message.
-- The marketer reviews the reasoning and launches the campaign.
-- The CRM personalizes each communication.
-- A separate channel service simulates real provider callbacks.
-- The dashboard updates campaign performance as receipts arrive.
+- React
+- Vite
+- Tailwind CSS
+- Vanilla browser `fetch` for API calls
 
-## Features
+### Backend
 
-- Seeded customer and order data for a realistic D2C demo.
-- Customer storage with lifecycle, spend, order count, city, category, and channel preference.
+- Node.js
+- Native Node.js HTTP server
+- REST-style JSON APIs
+- JSON file persistence
+
+### Services
+
+- CRM service on port `3000`
+- Stubbed channel service on port `4000`
+
+### Storage
+
+- Local JSON persistence in `data/state.json`
+
+### Tooling
+
+- npm
+- Vite build pipeline
+- Tailwind utility-first styling
+
+No real messaging provider is integrated. WhatsApp, SMS, Email, and RCS are simulated through the local channel service.
+
+## Why React And Tailwind
+
+The first implementation used a static frontend. This version moves the product UI to React and Tailwind because:
+
+- React gives the dashboard a cleaner component structure.
+- Tailwind keeps styling close to the components.
+- The app can evolve into a larger CRM without splitting behavior across plain DOM scripts.
+- The evaluator can clearly see frontend state, API calls, and rendering logic.
+- The UI is easier to extend with campaign builders, segment editors, charts, and future AI workflows.
+
+## Product Features
+
+- AI-style campaign copilot from natural-language goals.
+- Simulated shopper and order ingestion.
+- Customer storage with lifecycle, spend, city, preferred channel, category, and recency data.
 - Rule-based audience segmentation.
-- AI-style campaign recommendation from natural-language goals.
-- Personalized message templates using shopper attributes.
+- Segment previews with live audience sizes.
+- Personalized campaign message generation.
 - Campaign launch API.
-- Separate stubbed channel service.
-- Asynchronous receipt callbacks from the channel service to the CRM.
-- Communication lifecycle tracking.
-- Campaign-level performance insights.
-- Dashboard for customers, segments, campaigns, metrics, and delivery status.
+- Separate channel service that simulates delivery lifecycle.
+- Asynchronous callback ingestion through a CRM receipt API.
+- Communication-level event tracking.
+- Campaign-level performance metrics.
+- React dashboard for metrics, segments, campaigns, customers, and AI recommendations.
 
-## Tech Stack
+## AI-Native Product Approach
 
-- **Runtime:** Node.js
-- **Backend:** Native Node.js HTTP server
-- **Frontend:** HTML, CSS, vanilla JavaScript
-- **Storage:** JSON file persistence in `data/state.json`
-- **Architecture:** Two-service callback-driven system
-- **CRM service:** Runs on port `3000`
-- **Channel service:** Runs on port `4000`
-- **Package manager:** npm
-- **External messaging providers:** None, intentionally stubbed
-- **External AI providers:** None, the current demo uses deterministic AI-like recommendation logic
+This product treats AI as a decision assistant, not only a copywriting helper.
 
-This stack was chosen to keep the project easy to run, easy to review, and focused on product logic and system design rather than framework setup.
+The copilot turns marketer intent into:
 
-## Project Structure
-
-```text
-xeno-campaign-copilot/
-├── public/
-│   ├── index.html
-│   ├── styles.css
-│   └── app.js
-├── scripts/
-│   └── build-check.js
-├── server.js
-├── package.json
-└── README.md
-```
-
-## How It Works
-
-### 1. Data Ingestion
-
-The CRM starts with simulated customer and order data. Each customer has attributes such as:
-
-- Name
-- City
-- Lifecycle stage
-- Preferred channel
-- Favorite category
-- Total spend
-- Order count
-- Days since last order
-- Email and phone
-
-Orders are linked to customers and used to make the dataset feel closer to a real retail CRM.
-
-### 2. Segmentation
-
-Segments are created using shopper attributes and behavior rules.
-
-Supported rule examples:
-
-- `lifecycle`
-- `city`
-- `favoriteCategory`
-- `preferredChannel`
-- `minSpend`
-- `maxSpend`
-- `minOrders`
-- `minDaysSinceLastOrder`
-- `maxDaysSinceLastOrder`
-
-Example segment:
-
-```json
-{
-  "name": "Winback audience",
-  "rule": {
-    "minDaysSinceLastOrder": 75,
-    "minOrders": 2
-  }
-}
-```
-
-### 3. AI Campaign Copilot
-
-The marketer enters a goal such as:
-
-```text
-Win back inactive shoppers with a personal offer before the weekend.
-```
-
-The copilot recommends:
-
-- Audience name
+- Recommended segment
 - Audience rule
 - Audience size
 - Best channel
@@ -131,39 +90,44 @@ The copilot recommends:
 - Personalized message template
 - Reasoning behind the recommendation
 
-The current implementation uses deterministic recommendation logic instead of a live LLM so the demo is fully self-contained and does not require API keys.
-
-### 4. Personalized Communication
-
-When a campaign is launched, the CRM creates one communication per matching customer.
-
-Templates support fields such as:
-
-- `{{firstName}}`
-- `{{favoriteCategory}}`
-- `{{city}}`
-
-Example:
+Example goal:
 
 ```text
-Hi {{firstName}}, we saved 15% comeback reward for you based on your love for {{favoriteCategory}}.
+Win back inactive shoppers with a personal offer before the weekend.
 ```
 
-### 5. Stubbed Channel Service
+Example output:
 
-The CRM calls the separate channel service for each communication.
+- Segment: Winback audience
+- Rule: customers inactive for 75+ days with at least 2 orders
+- Channel: most common preferred channel in the selected audience
+- Message: personalized comeback offer using shopper category affinity
 
-The channel service accepts:
+The current implementation uses deterministic AI-like recommendation logic so the app is self-contained and does not require API keys. In production, this layer can be replaced with or enhanced by an LLM.
 
-- Communication ID
-- Campaign ID
-- Customer ID
-- Recipient
-- Channel
-- Message
-- Callback URL
+## Architecture
 
-It then simulates the communication lifecycle asynchronously.
+```text
+React + Tailwind Dashboard
+          |
+          v
+CRM Service, Node.js
+          |
+          | send communication payload
+          v
+Stubbed Channel Service
+          |
+          | async delivery and engagement callback
+          v
+CRM Receipt API
+          |
+          v
+Communication State + Campaign Metrics
+```
+
+## Communication Lifecycle
+
+The channel service simulates the lifecycle of each communication.
 
 Possible events:
 
@@ -175,17 +139,26 @@ Possible events:
 - `clicked`
 - `converted`
 
-### 6. Receipt Callback Loop
+The CRM stores each callback as a receipt, updates the matching communication, deduplicates repeated events, and recalculates campaign stats.
 
-The channel service posts receipts back to:
+## Project Structure
 
 ```text
-POST /api/receipts
+xeno-campaign-copilot/
+├── src/
+│   ├── App.jsx
+│   └── main.jsx
+├── scripts/
+│   └── build-check.js
+├── data/
+│   └── state.json
+├── index.html
+├── server.js
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+└── README.md
 ```
-
-The CRM ingests each receipt, updates the communication status, deduplicates repeated events, and recomputes campaign stats.
-
-This models how real messaging providers work, where sending and delivery are not the same operation.
 
 ## API Reference
 
@@ -194,12 +167,12 @@ This models how real messaging providers work, where sending and delivery are no
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `GET` | `/api/summary` | Returns dashboard summary metrics. |
-| `GET` | `/api/customers` | Returns all ingested customers. |
+| `GET` | `/api/customers` | Returns all ingested shoppers. |
 | `GET` | `/api/orders` | Returns customer purchase history. |
-| `GET` | `/api/segments` | Returns saved segments with live audience sizes. |
-| `POST` | `/api/segments/preview` | Previews customers matching a segment rule. |
-| `POST` | `/api/ai/recommend` | Converts a campaign goal into an audience, channel, and message recommendation. |
-| `POST` | `/api/campaigns` | Launches a campaign and sends communications to the channel service. |
+| `GET` | `/api/segments` | Returns saved audience segments with live sizes. |
+| `POST` | `/api/segments/preview` | Previews shoppers matching a segment rule. |
+| `POST` | `/api/ai/recommend` | Converts a campaign goal into audience, channel, and message recommendations. |
+| `POST` | `/api/campaigns` | Launches a campaign and sends messages to the channel service. |
 | `GET` | `/api/campaigns` | Returns campaigns with performance stats. |
 | `GET` | `/api/communications` | Returns communication-level records. |
 | `POST` | `/api/receipts` | Accepts async callbacks from the channel service. |
@@ -208,7 +181,7 @@ This models how real messaging providers work, where sending and delivery are no
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/send` | Accepts a communication and simulates provider lifecycle callbacks. |
+| `POST` | `/send` | Accepts a communication payload and simulates lifecycle callbacks. |
 
 ## Running Locally
 
@@ -218,145 +191,161 @@ Install dependencies:
 npm install
 ```
 
-Start both services:
+Run the backend CRM and channel service:
 
 ```bash
-npm start
+npm run dev:api
 ```
 
-Open the CRM:
+Run the React frontend:
+
+```bash
+npm run dev:web
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+The frontend talks to the backend at:
 
 ```text
 http://localhost:3000
 ```
 
-The services run at:
+## Production Build
 
-```text
-CRM: http://localhost:3000
-Channel service: http://localhost:4000
-```
-
-## Build Check
-
-Run:
+Build the React app:
 
 ```bash
 npm run build
 ```
 
-This performs a lightweight startup check to confirm that the CRM and channel service can boot.
+Start the production server:
+
+```bash
+npm start
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+In production mode, the Node CRM server serves the built React app from `dist/`.
+
+## Implementation Plan
+
+### Phase 1: README and Stack Update
+
+- Replace the static frontend plan with React + Tailwind.
+- Document the two-service architecture.
+- Document the API surface.
+- Document local development and production scripts.
+
+### Phase 2: Frontend Migration
+
+- Create Vite React entry files.
+- Move the dashboard into React components.
+- Replace plain CSS with Tailwind utility classes.
+- Use React state for summary, segments, campaigns, customers, and recommendations.
+- Poll campaign data so callback results appear live.
+
+### Phase 3: Backend Compatibility
+
+- Keep the existing CRM APIs.
+- Keep the separate channel service.
+- Update static serving so the backend serves `dist/` in production.
+- Preserve callback ingestion and campaign stat calculation.
+
+### Phase 4: Verification
+
+- Install React, Vite, and Tailwind dependencies.
+- Run the production build.
+- Start the backend.
+- Confirm the dashboard loads.
+- Launch a campaign.
+- Confirm channel callbacks update campaign metrics.
 
 ## Demo Flow
 
-1. Open `http://localhost:3000`.
-2. Review the customer and segment data.
+1. Open the React dashboard.
+2. Show seeded customers and saved segments.
 3. Enter a campaign goal in the copilot panel.
-4. Generate an AI campaign plan.
-5. Review the recommended audience, channel, message, and reasoning.
+4. Generate a recommendation.
+5. Explain the recommended audience, channel, message, and reasoning.
 6. Launch the campaign.
-7. Watch campaign stats update as the channel service sends callbacks.
-8. Refresh or wait for the dashboard polling to show updated delivery and engagement metrics.
-
-## Architecture
-
-```text
-Frontend Dashboard
-        |
-        v
-CRM Service
-        |
-        | send communication
-        v
-Stubbed Channel Service
-        |
-        | async receipt callbacks
-        v
-CRM Receipt API
-        |
-        v
-Campaign Stats + Communication State
-```
+7. Show campaign metrics changing as simulated callbacks arrive.
+8. Explain the CRM and channel service loop.
 
 ## System Design Decisions
 
-### Why two services?
+### Two Services
 
-Real messaging providers are asynchronous. A send request only means the provider accepted the message. Delivery, failure, open, click, and conversion signals arrive later as callbacks or webhooks.
+The CRM and channel simulator are separate because real channel providers are asynchronous. A send API only confirms provider acceptance. Delivery, failure, read, click, and conversion events arrive later through callbacks.
 
-This project keeps that separation by running the CRM and channel simulator as separate services.
+### JSON Persistence
 
-### Why JSON storage?
+JSON storage keeps the demo simple and easy to review. For production, this should move to PostgreSQL or another durable database.
 
-For a challenge demo, JSON storage keeps the app easy to run and review. It avoids database setup while still preserving state across runs.
+### Deterministic Copilot
 
-For production, this should move to a durable database such as PostgreSQL.
+The recommendation engine is deterministic so the project can run without external AI credentials. The product still demonstrates AI-native behavior by turning goals into decisions and actions.
 
-### Why deterministic AI logic?
+### Idempotent Receipts
 
-The project demonstrates AI-native product behavior without requiring an external API key. The copilot still performs the core AI product role: turning marketer intent into audience, message, channel, and reasoning.
+The CRM deduplicates receipt events per communication so duplicate callbacks do not inflate campaign stats.
 
-In production, this could be replaced or enhanced with an LLM.
+## Scalability Improvements
 
-## Scalability Notes
+For production scale, I would add:
 
-The current version is intentionally lightweight. For larger scale, I would add:
-
-- PostgreSQL for customers, orders, campaigns, communications, and receipts.
+- PostgreSQL for durable relational data.
 - Redis or a queue for campaign dispatch.
 - Worker processes for high-volume sending.
-- Signed callback verification for channel receipts.
-- Retry policies for failed channel calls.
-- Idempotency keys for communication sends and receipt ingestion.
-- Event timestamps and ordering rules for out-of-order provider callbacks.
-- Campaign attribution windows for conversion tracking.
-- Rate limits per channel.
+- Signed callback verification.
+- Retry policies for failed channel requests.
+- Idempotency keys for sends and receipts.
+- Provider event ordering rules.
+- Channel-level rate limits.
 - Multi-brand tenancy.
-
-## Walkthrough Video Outline
-
-Suggested 5-6 minute structure:
-
-| Section | Time | What to Cover |
-| --- | --- | --- |
-| Product intro | 30 sec | What the product is and why it focuses on shopper engagement. |
-| Functional demo | 90 sec | Show goal input, AI recommendation, launch, callbacks, and stats. |
-| Architecture | 60 sec | Explain CRM service, channel service, receipt API, and storage. |
-| Code walkthrough | 60 sec | Walk through `server.js`, `public/app.js`, and the callback flow. |
-| AI-native workflow | 60 sec | Explain how AI helped shape product scope, implementation, and review. |
-| Tradeoffs | 30 sec | Discuss JSON storage, deterministic AI, and production scaling path. |
+- Campaign attribution windows.
+- Real LLM integration for richer recommendations.
 
 ## Deployment Notes
 
-For a hosted submission, deploy the app to a platform that supports Node.js.
-
-Suggested options:
+The easiest hosting options for this implementation are:
 
 - Render
 - Railway
 - Fly.io
-- Vercel with serverless adaptation
 
-Because this app runs two services in one Node process, the simplest deployment path is Render or Railway.
+The production deployment should:
 
-Use these environment variables if needed:
+1. Run `npm install`.
+2. Run `npm run build`.
+3. Run `npm start`.
+
+Suggested environment variables:
 
 ```text
 CRM_PORT=3000
 CHANNEL_PORT=4000
 ```
 
-## Future Enhancements
+## Walkthrough Video Outline
 
-- Real LLM integration for richer segment and copy generation.
-- CSV upload for customer and order ingestion.
-- Campaign scheduling.
-- A/B testing for message variants.
-- Brand tone controls.
-- Channel cost simulation.
-- Revenue attribution dashboard.
-- Segment save/edit UI.
-- Exportable campaign reports.
+| Section | Time | What to Cover |
+| --- | --- | --- |
+| Product intro | 30 sec | What was built and why it focuses on shopper marketing. |
+| Functional demo | 90 sec | Goal input, recommendation, campaign launch, callbacks, and stats. |
+| Architecture | 60 sec | React dashboard, CRM service, channel service, receipt API. |
+| Code walkthrough | 60 sec | `src/App.jsx`, `server.js`, and callback ingestion. |
+| AI-native workflow | 60 sec | How AI helped scope, build, review, and refine the project. |
+| Tradeoffs | 30 sec | JSON storage, deterministic AI, and production scaling path. |
 
 ## Repository Name
 
